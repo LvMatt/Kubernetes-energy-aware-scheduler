@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuberlbridge
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kuberlbridge
+  template:
+    metadata:
+      labels:
+        app: kuberlbridge
+    spec:
+      containers:
+        - name: kuberlbridge
+          image: lvhelt/kuberlbridge:v1.0
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: Always

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: kuberlbridge
+  namespace: kube-system
+spec:
+  selector:
+    app: kuberlbridge
+  ports:
+    - protocol: TCP
+      port: 8080  # The port exposed by the service
+      targetPort: 8080  # The port inside the container

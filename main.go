@@ -28,7 +28,8 @@ func main() {
 }
 
 func callKubeRLBridge(node string) (int64, error) {
-	resp, err := http.Get("http://localhost:8080/score")
+	resp, err := http.Get("http://kuberlbridge.kube-system.svc.cluster.local:8080/score")
+	klog.Info("resp...", resp)
 
 	if err != nil {
 		return 0, err
