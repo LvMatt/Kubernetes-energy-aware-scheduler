@@ -5,8 +5,12 @@ const app = express();
 const PORT = 8080;
 
 app.get("/score", async (req, res) => {
-    const scoreNodeBody = req.query.node;
-    if(!scoreNodeBody) res.json({
+    const nodeName = req.query?.nodeName;
+    const podName = req.query?.podName;
+    const podPriority = req.query?.podPriority;
+    const podSchedulerNameAffilation = req.query?.podSchedulerNameAffilation;
+
+    if(!nodeName || !podName || !podPriority || !podSchedulerNameAffilation ) res.json({
         'score': 0,
         'node': '',
         'statusCode': 400
@@ -15,10 +19,10 @@ app.get("/score", async (req, res) => {
     let energyUsage = Math.floor(Math.random() * 100); 
     let score = 100 - energyUsage;
 
-    console.log(`Node: ${node}, Energy Usage: ${energyUsage}, Score: ${score}`);
+    console.log(`Node: ${nodeName}, Energy Usage: ${energyUsage}, Score: ${score}`);
     res.json({
         'score': score,
-        'node': node,
+        'node': nodeName,
         'statusCode': 200
     });
 });

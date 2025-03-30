@@ -2,8 +2,11 @@ package plugins
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"math"
 	"math/rand"
+	"net/http"
 	"strings"
 
 	v1 "k8s.io/api/core/v1"
@@ -57,7 +60,7 @@ func (p *EnergyEfficientPlugin) Filter(ctx context.Context, state *framework.Cyc
 
 func (p *EnergyEfficientPlugin) Score(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeName string) (int64, *framework.Status) {
 	energyUsage := rand.Int63n(100)
-	score := 100 - energyUsage
+	//score := 100 - energyUsage
 
 	var podStatus v1.PodStatus = pod.Status
 	var podPhase string = string(podStatus.Phase)
@@ -71,12 +74,36 @@ func (p *EnergyEfficientPlugin) Score(ctx context.Context, state *framework.Cycl
 	var podSchedulerNameAffilation string = pod.Spec.SchedulerName
 
 	// Prepare function
-	// callKubeRLBridge(nodeName, podName, podPriority, podSchedulerNameAffilation )
+	score, node, err := callKubeRLBridge(nodeName, podName, podPriority, podSchedulerNameAffilation)
+	klog.Info("Print score_new__:", score, node, err)
 	// callKubeRLBridge("energy-aware-k8-cluster-worker", "test-pod-7", 1, "energy-scheduler")
 
-	klog.Infof("Scoring node logs:", podName, podPriority, podSchedulerNameAffilation)
 	klog.Infof("Scoring node %s: energy usage %d, final score %d", nodeName, energyUsage, score)
 	return score, framework.NewStatus(framework.Success)
+}
+
+func callKubeRLBridge(nodeName string, podName string, podPriority *int32, podSchedulerNameAffilation string) (int64, string, error) {
+	// local purpose only: http://0.0.0.0:8080/score
+	url := fmt.Sprintf("http://kuberlbridge.kube-system.svc.cluster.local:8080/score?nodeName=%s&podName=%s&podPriority=%d&podSchedulerNameAffilation=%s",
+		nodeName, podName, podPriority, podSchedulerNameAffilation)
+	resp, err := http.Get(url)
+	klog.Info("resp...", resp)
+
+	if err != nil {
+		return 0, "", err
+	}
+	defer resp.Body.Close()
+
+	var result struct {
+		Score int64  `json:"score"`
+		Node  string `json:"node"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return 0, "", err
+	}
+
+	return result.Score, result.Node, nil
+
 }
 
 func (p *EnergyEfficientPlugin) ScoreExtensions() framework.ScoreExtensions {
