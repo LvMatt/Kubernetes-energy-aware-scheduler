@@ -6,7 +6,7 @@ leaderElection:
   leaseDuration: 15s
   renewDeadline: 10s
   resourceLock: leases
-  resourceName: energy-scheduler-leader  # Use a unique lease name
+  resourceName: energy-scheduler-leader
   resourceNamespace: kube-system
   retryPeriod: 2s
 profiles:
