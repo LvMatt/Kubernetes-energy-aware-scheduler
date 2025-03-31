@@ -83,8 +83,8 @@ func (p *EnergyEfficientPlugin) Score(ctx context.Context, state *framework.Cycl
 }
 
 func callKubeRLBridge(nodeName string, podName string, podPriority *int32, podSchedulerNameAffilation string) (int64, string, error) {
-	// local purpose only: http://0.0.0.0:8080/score
-	url := fmt.Sprintf("http://kuberlbridge.kube-system.svc.cluster.local:8080/score?nodeName=%s&podName=%s&podPriority=%d&podSchedulerNameAffilation=%s",
+	// local purpose only: http://0.0.0.0:3000/score
+	url := fmt.Sprintf("http://kuberlbridge.kube-system.svc.cluster.local:3000/score?nodeName=%s&podName=%s&podPriority=%d&podSchedulerNameAffilation=%s",
 		nodeName, podName, podPriority, podSchedulerNameAffilation)
 	resp, err := http.Get(url)
 	klog.Info("resp...", resp)

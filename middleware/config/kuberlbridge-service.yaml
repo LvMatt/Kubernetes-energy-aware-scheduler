@@ -8,5 +8,5 @@ spec:
     app: kuberlbridge
   ports:
     - protocol: TCP
-      port: 8080  # The port exposed by the service
-      targetPort: 8080  # The port inside the container
+      port: 3000  # The port exposed by the service
+      targetPort: 3000  # The port inside the container
