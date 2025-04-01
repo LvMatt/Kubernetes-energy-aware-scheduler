@@ -1,0 +1,9 @@
+globalConfig:
+  metricsEndpoint: "http://localhost:9090/"
+
+jobs:
+  - name: test-job
+    jobType: create
+    objects:
+      - objectTemplate: deployment.yaml
+        replicas: 50
