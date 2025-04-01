@@ -1,0 +1,64 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-burner-job
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-burner
+  namespace: kube-burner-job
+  labels:
+    app: kube-burner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-burner
+  template:
+    metadata:
+      labels:
+        app: kube-burner
+    spec:
+      containers:
+        - name: kube-burner
+          image: quay.io/cloud-bulldozer/kube-burner:v1.7.7-amd64
+          command: ["/kube-burner"]
+          args: ["init", "-c", "/config/kube-burner-config.yaml"]
+          volumeMounts:
+            - name: config-volume
+              mountPath: /config
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+            requests:
+              cpu: "500m"
+              memory: "256Mi"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: kube-burner-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-burner-config
+  namespace: kube-burner-job
+data:
+  kube-burner-config.yaml: |
+    global:
+      gc: true
+    jobs:
+      - name: kube-burner-job
+        namespace: kube-burner-job
+        jobIterations: 10
+        qps: 5
+        burst: 5
+        namespacedIterations: true
+        cleanup: true
+        jobPause: 1s
+        objects:
+          - objectTemplate: objectTemplates/deployment.yml
+            replicas: 1

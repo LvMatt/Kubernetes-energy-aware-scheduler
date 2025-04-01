@@ -1,9 +1,15 @@
-globalConfig:
-  metricsEndpoint: "http://localhost:9090/"
+global:
+  gc: true
 
 jobs:
-  - name: test-job
-    jobType: create
+  - name: kube-burner-job
+    namespace: kube-burner-job
+    jobIterations: 10
+    qps: 5
+    burst: 5
+    namespacedIterations: true
+    cleanup: true
+    jobPause: 1s
     objects:
-      - objectTemplate: deployment.yaml
-        replicas: 50
+      - objectTemplate: "C:/Users/jonat/OneDrive/Dokumenter/scheduler/kube-scheduler/Kubernetes-energy-aware-scheduler/kube-burner-test/deployment.yml"
+        replicas: 1
