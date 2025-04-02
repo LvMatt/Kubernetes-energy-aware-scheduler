@@ -8,8 +8,11 @@ WORKDIR /app
 COPY RL-service/ RL-service/
 
 # Install required Python packages
-RUN pip install fastapi uvicorn stable-baselines3 numpy
+RUN pip install fastapi
 RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
+RUN pip install uvicorn
+RUN pip install stable-baselines3
+RUN pip install numpy
 
 # Expose the API port
 EXPOSE 8000
