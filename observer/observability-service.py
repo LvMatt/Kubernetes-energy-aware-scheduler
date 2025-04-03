@@ -3,12 +3,19 @@ import requests
 
 app = Flask(__name__)
 
-PROMETHEUS_URL = "http://prometheus-server.monitoring.svc.cluster.local:9090/api/v1/query"
+# Testing URL
+PROMETHEUS_URL = "http://127.0.0.1:9090/api/v1/query"
+
+# Production URL
+#PROMETHEUS_URL = "http://prometheus-server.monitoring.svc.cluster.local:9090/api/v1/query"
 
 def query_prometheus(query):
-    response = requests.get(PROMETHEUS_URL, params={'query': query})
-    data = response.json()
-    return data["data"]["result"]
+    try:
+        response = requests.get(PROMETHEUS_URL, params={'query': query})
+        data = response.json()
+        return data["data"]["result"]
+    except Exception as e:
+        return {"error": f"Prometheus query failed: {str(e)}"}
 
 @app.route('/metrics/cpu', methods=['GET'])
 def get_cpu_usage():
@@ -31,4 +38,4 @@ def get_all_metrics():
     })
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5001)
