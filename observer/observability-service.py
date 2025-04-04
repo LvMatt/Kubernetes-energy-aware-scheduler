@@ -95,5 +95,56 @@ def get_node_memory():
 
     return jsonify(results)
 
+@app.route('/metrics/node-cpu', methods=['GET'])
+def get_node_cpu():
+    nodes_param = request.args.get('nodes')
+    if not nodes_param:
+        return jsonify({"error": "Missing 'nodes' parameter"}), 400
+
+    node_names = nodes_param.split(",")
+    results = []
+
+    for node_name in node_names:
+        node_info = query_prometheus(f'kube_node_info{{node="{node_name}"}}')
+        if not node_info or isinstance(node_info, dict):
+            results.append({
+                "node": node_name,
+                "error": "Node not found"
+            })
+            continue
+
+        instance_ip = node_info[0]["metric"]["internal_ip"]
+        instance_label = f"{instance_ip}:9100"
+
+        cpu_cores_result = query_prometheus(
+            f'count(count by (cpu) (node_cpu_seconds_total{{instance="{instance_label}"}}))'
+        )
+
+        # Get CPU usage (100 - idle rate avg over 1m)
+        cpu_usage_result = query_prometheus(
+            f'100 - (avg by (instance) (rate(node_cpu_seconds_total{{mode="idle", instance="{instance_label}"}}[1m])) * 100)'
+        )
+
+        if not cpu_cores_result or not cpu_usage_result or isinstance(cpu_cores_result, dict) or isinstance(cpu_usage_result, dict):
+            results.append({
+                "node": node_name,
+                "error": "CPU metrics not found"
+            })
+            continue
+
+        cpu_cores = int(float(cpu_cores_result[0]["value"][1]))
+        cpu_used_percent = float(cpu_usage_result[0]["value"][1])
+
+        results.append({
+            "node": node_name,
+            "instance": instance_ip,
+            "cpu": {
+                "cores": cpu_cores,
+                "used_percent": round(cpu_used_percent, 2)
+            }
+        })
+
+    return jsonify(results)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)
