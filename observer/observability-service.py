@@ -146,5 +146,44 @@ def get_node_cpu():
 
     return jsonify(results)
 
+
+@app.route('/metrics/node-active-pods', methods=['GET'])
+def get_node_active_pods():
+    nodes_param = request.args.get('nodes')
+    if not nodes_param:
+        return jsonify({"error": "Missing 'nodes' parameter"}), 400
+
+    node_names = [n.strip() for n in nodes_param.split(",")] 
+    results = []
+
+    for node_name in node_names:
+        node_info = query_prometheus(f'kube_node_info{{node="{node_name}"}}')
+       
+        pod_query = (
+            f'count(kube_pod_status_phase{{phase="Running"}} '
+            f'* on (namespace, pod) group_left(node) '
+            f'kube_pod_info{{node="{node_name}"}})'
+        )
+
+        pod_count_result = query_prometheus(pod_query)
+        if not pod_count_result or isinstance(pod_count_result, dict):
+            results.append({
+                "node": node_name,
+                "error": "Pod metrics not found"
+            })
+            continue
+
+        pod_count = int(float(pod_count_result[0]["value"][1]))
+        instance_ip = node_info[0]["metric"]["internal_ip"]
+
+        results.append({
+            "node": node_name,
+            "instance": instance_ip,
+            "active_pods": pod_count
+        })
+
+    return jsonify(results)
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)

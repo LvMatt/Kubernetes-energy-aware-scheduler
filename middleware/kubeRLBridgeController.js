@@ -24,14 +24,19 @@ app.get("/score", async (req, res) => {
         nodesArr = nodesRaw.split(',');
         const nodeMemoryMetric = await metricService.getMemoryMetricsFromObservabilityService(nodesRaw);
         const nodeCPUMetric = await metricService.getMemoryCPUFromObservabilityService(nodesRaw);
+        const nodeActivePods = await metricService.getActivePodsObservabilityService(nodesRaw);
 
+        console.log("nodeMemoryMetric", nodeMemoryMetric)
+        console.log("nodeCPUMetric", nodeCPUMetric);
+        console.log("nodeActivePods", nodeActivePods)
         const mergedMetrics = nodeMemoryMetric.map(mem => {
             const cpu = nodeCPUMetric.find(cpu => cpu.node === mem.node);
-          
+            const activePods = nodeActivePods.find(activeNode => activeNode.node ===  mem.node)
             return {
               node: mem.node,
               instance: mem.instance,
               memory: mem.memory,
+              activePods: activePods ? activePods : null,
               cpu: cpu ? cpu.cpu : null 
             };
         });
