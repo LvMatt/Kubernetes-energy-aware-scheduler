@@ -22,13 +22,9 @@ app.get("/score", async (req, res) => {
         }
         let nodesArr;
         nodesArr = nodesRaw.split(',');
-        const nodeMetricsCombined = [];
-        for (const node of nodesArr) {
-            const nodeMetric = await metricService.getNodeMetricsFromObservabilityService(node);
-            nodeMetricsCombined.push(nodeMetric);
-        }
-        console.log("nodeMetricsCombined", nodeMetricsCombined)
-
+        const nodeMetric = await metricService.getNodeMetricsFromObservabilityService(nodesRaw);
+        console.log("nodeMetric", nodeMetric)
+       
         const nodesLen = nodesArr.length;
 
         let energyUsage = Math.floor(Math.random() * 100); 

@@ -48,49 +48,52 @@ def get_all_metrics():
 
 @app.route('/metrics/node-memory', methods=['GET'])
 def get_node_memory():
-    node_name = request.args.get('node')
-    if not node_name:
-        return jsonify({"error": "Missing 'node' parameter"}), 400
+    nodes_param = request.args.get('nodes')
+    if not nodes_param:
+        return jsonify({"error": "Missing 'nodes' parameter"}), 400
 
-    node_info = query_prometheus(f'kube_node_info{{node="{node_name}"}}')
-    if not node_info or isinstance(node_info, dict):
-        return jsonify({
-            "error": f"Node {node_name} not found in cluster",
-            "available_nodes": get_available_nodes()
-        }), 404
+    node_names = nodes_param.split(",")
+    results = []
 
-    instance_ip = node_info[0]["metric"]["internal_ip"]
-    instance_label = f"{instance_ip}:9100"
+    for node_name in node_names:
+        node_info = query_prometheus(f'kube_node_info{{node="{node_name}"}}')
+        if not node_info or isinstance(node_info, dict):
+            results.append({
+                "node": node_name,
+                "error": "Node not found"
+            })
+            continue
 
-    # Get total memory
-    total_mem_result = query_prometheus(
-        f'node_memory_MemTotal_bytes{{instance="{instance_label}"}}'
-    )
-    if not total_mem_result or isinstance(total_mem_result, dict):
-        return jsonify({"error": "Could not retrieve total memory"}), 500
-    total_memory = float(total_mem_result[0]["value"][1])
+        instance_ip = node_info[0]["metric"]["internal_ip"]
+        instance_label = f"{instance_ip}:9100"
 
-    # Get available memory
-    avail_mem_result = query_prometheus(
-        f'node_memory_MemAvailable_bytes{{instance="{instance_label}"}}'
-    )
-    if not avail_mem_result or isinstance(avail_mem_result, dict):
-        return jsonify({"error": "Could not retrieve available memory"}), 500
-    available_memory = float(avail_mem_result[0]["value"][1])
+        total_result = query_prometheus(f'node_memory_MemTotal_bytes{{instance="{instance_label}"}}')
+        avail_result = query_prometheus(f'node_memory_MemAvailable_bytes{{instance="{instance_label}"}}')
 
-    used_memory = total_memory - available_memory
-    percent_used = (used_memory / total_memory) * 100
+        if not total_result or not avail_result or isinstance(total_result, dict) or isinstance(avail_result, dict):
+            results.append({
+                "node": node_name,
+                "error": "Memory metrics not found"
+            })
+            continue
 
-    return jsonify({
-        "node": node_name,
-        "instance": instance_ip,
-        "memory": {
-            "total_bytes": total_memory,
-            "available_bytes": available_memory,
-            "used_bytes": used_memory,
-            "used_percent": round(percent_used, 2)
-        }
-    })
+        total = float(total_result[0]["value"][1])
+        available = float(avail_result[0]["value"][1])
+        used = total - available
+        percent = (used / total) * 100
+
+        results.append({
+            "node": node_name,
+            "instance": instance_ip,
+            "memory": {
+                "total_bytes": total,
+                "available_bytes": available,
+                "used_bytes": used,
+                "used_percent": round(percent, 2)
+            }
+        })
+
+    return jsonify(results)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)
