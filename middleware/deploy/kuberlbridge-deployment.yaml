@@ -17,5 +17,5 @@ spec:
         - name: kuberlbridge
           image: lvhelt/kuberlbridge:v1.0
           ports:
-            - containerPort: 8080
+            - containerPort: 3000
           imagePullPolicy: Always
