@@ -22,11 +22,23 @@ app.get("/score", async (req, res) => {
         }
         let nodesArr;
         nodesArr = nodesRaw.split(',');
-        const nodeMetric = await metricService.getNodeMetricsFromObservabilityService(nodesRaw);
-        console.log("nodeMetric", nodeMetric)
-       
-        const nodesLen = nodesArr.length;
+        const nodeMemoryMetric = await metricService.getMemoryMetricsFromObservabilityService(nodesRaw);
+        const nodeCPUMetric = await metricService.getMemoryCPUFromObservabilityService(nodesRaw);
 
+        const mergedMetrics = nodeMemoryMetric.map(mem => {
+            const cpu = nodeCPUMetric.find(cpu => cpu.node === mem.node);
+          
+            return {
+              node: mem.node,
+              instance: mem.instance,
+              memory: mem.memory,
+              cpu: cpu ? cpu.cpu : null 
+            };
+        });
+
+        // mergedMetrics are going to be send to RL model
+        console.log("mergedMetrics", mergedMetrics)
+       
         let energyUsage = Math.floor(Math.random() * 100); 
         let score = 100 - energyUsage;
 
