@@ -11,31 +11,31 @@ app = FastAPI()
 MODEL_PATH = "RL-service/dqn_kubernetes"
 model = DQN.load(MODEL_PATH)
 
-class Node(BaseModel):
-    id: str
-    cpu_usage: float
+# Match the middleware's JSON format
+class CPU(BaseModel):
+    used_percent: float
 
-class ScheduleRequest(BaseModel):
-    nodes: list[Node]
+class NodeData(BaseModel):
+    node: str
+    cpu: CPU
 
 @app.post("/schedule")
-def schedule_pod(request: ScheduleRequest):
-    # Convert CPU usage values to a fixed-size array (default to 0 if fewer nodes)
-    node_count = 5  # Must match training setup
-    node_features = np.zeros(node_count, dtype=np.float32)  # Default: 0 latency for missing nodes
+def schedule_from_middleware(nodes: list[NodeData]):
+    # Get CPU usage from each node
+    cpu_usages = [node.cpu.used_percent / 100.0 for node in nodes]  # normalize to [0, 1]
 
-    # Fill in CPU usage data (assuming lower CPU usage ~ lower latency)
-    for i, node in enumerate(request.nodes):
-        if i < node_count:
-            node_features[i] = node.cpu_usage
+    # Pad or truncate to 5 elements (model was trained on 3)
+    state = np.zeros(3, dtype=np.float32)
+    for i in range(min(3, len(cpu_usages))):
+        state[i] = cpu_usages[i]
 
-    # Predict action using the trained RL model
-    action, _ = model.predict(node_features)
+    # Predict the action
+    action, _ = model.predict(state)
 
-    # Get the scheduled node ID
-    selected_node = request.nodes[action].id if action < len(request.nodes) else request.nodes[0].id
+    # Safety: If action index is out of bounds, default to first node
+    chosen_node = nodes[action].node if action < len(nodes) else nodes[0].node
 
-    return {"scheduled_node": selected_node}
+    return {"scheduled_node": chosen_node}
 
 # Health check endpoint
 @app.get("/")
