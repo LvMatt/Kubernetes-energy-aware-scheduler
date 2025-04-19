@@ -25,6 +25,9 @@ data:
           filter:
             enabled:
               - name: EnergyEfficientScheduler
+          preScore:
+            enabled:
+              - name: EnergyEfficientScheduler
           score:
             enabled:
               - name: EnergyEfficientScheduler

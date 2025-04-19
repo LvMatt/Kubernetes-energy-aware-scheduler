@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"math/rand"
 	"net/http"
 	"strings"
 
@@ -21,7 +20,20 @@ type EnergyEfficientPlugin struct {
 	handle framework.Handle
 }
 
+type BestNodeState struct {
+	NodeName string
+}
+
+var _ framework.StateData = &BestNodeState{}
+
+func (b *BestNodeState) Clone() framework.StateData {
+	return &BestNodeState{
+		NodeName: b.NodeName,
+	}
+}
+
 var _ framework.FilterPlugin = &EnergyEfficientPlugin{}
+var _ framework.PreScorePlugin = &EnergyEfficientPlugin{}
 var _ framework.ScorePlugin = &EnergyEfficientPlugin{}
 var _ framework.PreFilterPlugin = &EnergyEfficientPlugin{}
 
@@ -58,52 +70,101 @@ func (p *EnergyEfficientPlugin) Filter(ctx context.Context, state *framework.Cyc
 	return framework.NewStatus(framework.Success)
 }
 
-func (p *EnergyEfficientPlugin) Score(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeName string) (int64, *framework.Status) {
-	energyUsage := rand.Int63n(100)
-	//score := 100 - energyUsage
+func (p *EnergyEfficientPlugin) PreScore(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodes []*framework.NodeInfo) *framework.Status {
+	klog.Info("PreScore: Sending all nodes to RL model")
 
-	var podStatus v1.PodStatus = pod.Status
-	var podPhase string = string(podStatus.Phase)
-
-	if !strings.Contains(podPhase, "Pending") {
-		klog.Info("Pod was already scheduled or something went wrong!")
-		return 0, framework.NewStatus(framework.Pending)
+	var nodeNames []string
+	for _, nodeInfo := range nodes {
+		nodeNames = append(nodeNames, nodeInfo.Node().Name)
 	}
+	klog.Info("PreScore: nodeNames", nodeNames)
+
 	var podName string = pod.Name
 	var podPriority *int32 = pod.Spec.Priority
-	var podSchedulerNameAffilation string = pod.Spec.SchedulerName
+	var podSchedulerNameAffiliation string = pod.Spec.SchedulerName
 
-	// Prepare function
-	score, node, err := callKubeRLBridge(nodeName, podName, podPriority, podSchedulerNameAffilation)
-	klog.Info("Print score_new__:", score, node, err)
-	// callKubeRLBridge("energy-aware-k8-cluster-worker", "test-pod-7", 1, "energy-scheduler")
+	// bestNode, err := callKubeRLBridgeForBestNode(pod, nodeNames)
+	bestNode, errMsg, statusCode := callKubeRLBridgeForBestNode(podName, nodeNames, podPriority, podSchedulerNameAffiliation)
+	klog.Info("errMsg, statusCode", errMsg, statusCode)
+	klog.Info("bestNode__", bestNode)
 
-	klog.Infof("Scoring node %s: energy usage %d, final score %d", nodeName, energyUsage, score)
-	return score, framework.NewStatus(framework.Success)
+	if statusCode != 200 {
+		klog.Error("RL model returned error:", errMsg, "with statusCode:", statusCode)
+		return framework.NewStatus(framework.Error, fmt.Sprintf("Error in RL model: %d", statusCode))
+	}
+
+	klog.Infof("RL model selected best node: %s", bestNode)
+
+	if bestNode == "" {
+		klog.Error("Received empty bestNode from RL model")
+		return framework.NewStatus(framework.Error, "Received empty bestNode")
+	}
+
+	state.Write("bestNode", &BestNodeState{NodeName: bestNode})
+
+	return framework.NewStatus(framework.Success)
 }
 
-func callKubeRLBridge(nodeName string, podName string, podPriority *int32, podSchedulerNameAffilation string) (int64, string, error) {
-	// local purpose only: http://0.0.0.0:3000/score
-	url := fmt.Sprintf("http://kuberlbridge.kube-system.svc.cluster.local:3000/score?nodeName=%s&podName=%s&podPriority=%d&podSchedulerNameAffilation=%s",
-		nodeName, podName, podPriority, podSchedulerNameAffilation)
-	resp, err := http.Get(url)
-	klog.Info("resp...", resp)
-
+func (p *EnergyEfficientPlugin) Score(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeName string) (int64, *framework.Status) {
+	val, err := state.Read("bestNode")
 	if err != nil {
-		return 0, "", err
+		klog.Error("Failed to read bestNode from CycleState: ", err)
+		return 0, framework.NewStatus(framework.Error, "bestNode not found in CycleState")
+	}
+
+	// Ensure proper type assertion
+	bestNodeState, ok := val.(*BestNodeState)
+	if !ok {
+		klog.Error("Invalid bestNode type in CycleState")
+		return 0, framework.NewStatus(framework.Error, "Invalid bestNode type")
+	}
+
+	klog.Infof("Best node from state: %s", bestNodeState.NodeName)
+	klog.Infof("Scoring node: %s", nodeName)
+
+	if nodeName != bestNodeState.NodeName {
+		klog.Info("Node is not the best node, assigning low score")
+		return 0, framework.NewStatus(framework.Success)
+	}
+
+	klog.Info("Assigning high score to the best node")
+	return 100, framework.NewStatus(framework.Success)
+
+}
+
+//func callKubeRLBridge(nodeName string, podName string, podPriority *int32, podSchedulerNameAffilation string) (int64, string, error) {
+// local purpose only: http://0.0.0.0:3000/score
+/* url := fmt.Sprintf("http://kuberlbridge.kube-system.svc.cluster.local:3000/score?nodeName=%s&podName=%s&podPriority=%d&podSchedulerNameAffilation=%s",
+nodeName, podName, podPriority, podSchedulerNameAffilation) */
+func callKubeRLBridgeForBestNode(podName string, nodes []string, podPriority *int32, podSchedulerNameAffiliation string) (string, string, int) {
+	joinedNodes := strings.Join(nodes, ",")
+	klog.Infof("nodes: %v, podName: %s, podPriority: %d, podSchedulerNameAffiliation: %s", nodes, podName, *podPriority, podSchedulerNameAffiliation)
+
+	url := fmt.Sprintf("http://kuberlbridge.kube-system.svc.cluster.local:3000/score?nodes=%s&podName=%s&podPriority=%d&podSchedulerNameAffilation=%s",
+		joinedNodes, podName, *podPriority, podSchedulerNameAffiliation)
+
+	klog.Infof("Sending request to: %s", url)
+	resp, err := http.Get(url)
+	if err != nil {
+		klog.Errorf("Error calling URL: %v", err)
+		return "", "Error", 400
 	}
 	defer resp.Body.Close()
 
+	// Decode JSON response
 	var result struct {
-		Score int64  `json:"score"`
-		Node  string `json:"node"`
+		Node       string `json:"bestNode"`
+		Error      string `json:"errorMsg"`
+		StatusCode int    `json:"statusCode"`
 	}
+
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return 0, "", err
+		klog.Errorf("Error decoding response: %v", err)
+		return "", "Error", 400
 	}
 
-	return result.Score, result.Node, nil
-
+	klog.Infof("Response received: %+v", result)
+	return result.Node, result.Error, result.StatusCode
 }
 
 func (p *EnergyEfficientPlugin) ScoreExtensions() framework.ScoreExtensions {
