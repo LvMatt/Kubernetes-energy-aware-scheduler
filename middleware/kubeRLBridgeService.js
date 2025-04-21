@@ -1,6 +1,6 @@
 const axios = require("axios");
-const OBSERVABILITY_SERVICE_URL = 'http://127.0.0.1:5001'
-
+//const OBSERVABILITY_SERVICE_URL = 'http://127.0.0.1:5001'
+const OBSERVABILITY_SERVICE_URL = 'http://observability-service.kube-system.svc.cluster.local:5001';
 
 async function getMemoryMetricsFromObservabilityService(nodes) {
 	try {

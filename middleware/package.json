@@ -4,7 +4,7 @@
   "description": "",
   "main": "kubeRLBridge.js",
   "scripts": {
-    "start": "node kubeRLBridge.js"
+    "start": "node kubeRLBridgeController.js"
   },
   "dependencies": {
     "express": "^4.18.2",
