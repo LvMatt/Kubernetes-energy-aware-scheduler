@@ -8,7 +8,8 @@ from pydantic import BaseModel
 app = FastAPI()
 
 # Load the trained RL model
-MODEL_PATH = "RL-service/dqn_kubernetes"
+# MODEL_PATH_PREVIOUS = "RL-service/dqn_kubernetes"
+MODEL_PATH = "dqn_kubernetes.zip"
 model = DQN.load(MODEL_PATH)
 
 # Match the middleware's JSON format

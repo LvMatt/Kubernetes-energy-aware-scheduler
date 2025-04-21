@@ -4,15 +4,14 @@ FROM python:3.10-slim
 # Set the working directory
 WORKDIR /app
 
-# Copy the entire RL-service folder
-COPY . .
+# Copy model and script into the container
+COPY dqn_kubernetes.zip .
+COPY rl_scheduler_api.py .
 
 # Install required Python packages
-RUN pip install fastapi
+RUN pip install fastapi uvicorn numpy
 RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
-RUN pip install uvicorn
 RUN pip install stable-baselines3
-RUN pip install numpy
 
 # Expose the API port
 EXPOSE 8000
