@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: observability-service
+  namespace: kube-system
+  labels:
+    app: observability-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: observability-service
+  template:
+    metadata:
+      labels:
+        app: observability-service
+    spec:
+      containers:
+        - name: observability-service
+          image: lvhelt/observability:1.0
+          ports:
+            - containerPort: 5001
+          imagePullPolicy: Always
+          env:
+            - name: PROMETHEUS_URL
+              value: "http://prometheus-server.monitoring.svc.cluster.local:9090/api/v1/query"
