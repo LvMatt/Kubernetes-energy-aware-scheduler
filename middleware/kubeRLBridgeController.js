@@ -19,7 +19,8 @@ app.get("/score", async (req, res) => {
                 'bestNode': '',
                 'statusCode': 400
             });
-        }
+        };
+        
         let nodesArr;
         nodesArr = nodesRaw.split(',');
         const nodeMemoryMetric = await metricService.getMemoryMetricsFromObservabilityService(nodesRaw);
@@ -29,6 +30,7 @@ app.get("/score", async (req, res) => {
         console.log("nodeMemoryMetric", nodeMemoryMetric)
         console.log("nodeCPUMetric", nodeCPUMetric);
         console.log("nodeActivePods", nodeActivePods)
+
         const mergedMetrics = nodeMemoryMetric.map(mem => {
             const cpu = nodeCPUMetric.find(cpu => cpu.node === mem.node);
             const activePods = nodeActivePods.find(activeNode => activeNode.node ===  mem.node)
@@ -43,11 +45,17 @@ app.get("/score", async (req, res) => {
 
         // mergedMetrics are going to be send to RL model
         console.log("mergedMetrics", mergedMetrics)
-       
-        let energyUsage = Math.floor(Math.random() * 100); 
-        let score = 100 - energyUsage;
+        const bestNode = await metricService.getBestNodeFromRLModel(mergedMetrics);
+        console.log("bestNode", bestNode);
 
-        console.log(`Node: ${nodesRaw}, Energy Usage: ${energyUsage}, Score: ${score}`);
+        if(!bestNode) {
+            return res.json({
+                "errorMsg": 'Best node not found',
+                'bestNode': nodesArr[0],
+                'statusCode': 400
+            });
+        }
+
         return res.json({
             "errorMsg": '',
             'bestNode': nodesArr[0],
