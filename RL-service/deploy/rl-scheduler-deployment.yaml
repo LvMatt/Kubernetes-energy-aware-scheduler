@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rl-scheduler
+  namespace: kube-system
+  labels:
+    app: rl-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rl-scheduler
+  template:
+    metadata:
+      labels:
+        app: rl-scheduler
+    spec:
+      containers:
+      - name: rl-scheduler
+        image: lvhelt/rl-scheduler:1.0
+        ports:
+        - containerPort: 8000
+        imagePullPolicy: Always

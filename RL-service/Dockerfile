@@ -5,7 +5,7 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Copy the entire RL-service folder
-COPY RL-service/ RL-service/
+COPY . .
 
 # Install required Python packages
 RUN pip install fastapi
@@ -18,4 +18,4 @@ RUN pip install numpy
 EXPOSE 8000
 
 # Run the FastAPI server
-CMD ["uvicorn", "RL-service.rl_scheduler_api:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "rl_scheduler_api:app", "--host", "0.0.0.0", "--port", "8000"]

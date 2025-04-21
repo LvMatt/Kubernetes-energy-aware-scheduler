@@ -22,6 +22,7 @@ class NodeData(BaseModel):
 @app.post("/schedule")
 def schedule_from_middleware(nodes: list[NodeData]):
     # Get CPU usage from each node
+    print("Received nodes data:", nodes)
     cpu_usages = [node.cpu.used_percent / 100.0 for node in nodes]  # normalize to [0, 1]
 
     # Pad or truncate to 5 elements (model was trained on 3)
