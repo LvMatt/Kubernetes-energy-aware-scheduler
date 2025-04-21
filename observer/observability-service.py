@@ -6,10 +6,10 @@ import requests
 app = Flask(__name__)
 
 # Testing URL
-PROMETHEUS_URL = "http://127.0.0.1:9090/api/v1/query"
+#PROMETHEUS_URL_LOCAL = "http://127.0.0.1:9090/api/v1/query"
 
 # Production URL
-#PROMETHEUS_URL = "http://prometheus-server.monitoring.svc.cluster.local:9090/api/v1/query"
+PROMETHEUS_URL = "http://monitoring-kube-prometheus-prometheus.default.svc.cluster.local:9090/api/v1/query"
 
 def query_prometheus(query):
     try:
