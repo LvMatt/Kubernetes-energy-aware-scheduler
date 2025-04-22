@@ -14,6 +14,12 @@ spec:
         app: energy-scheduler
     spec:
       serviceAccountName: energy-scheduler
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      tolerations:
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
       containers:
         - name: energy-scheduler
           image: lvhelt/energy-scheduler:v1.7
