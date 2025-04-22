@@ -51,14 +51,14 @@ app.get("/score", async (req, res) => {
         if(!bestNode) {
             return res.json({
                 "errorMsg": 'Best node not found',
-                'bestNode': nodesArr[0],
+                'bestNode': '',
                 'statusCode': 400
             });
         }
 
         return res.json({
             "errorMsg": '',
-            'bestNode': nodesArr[0],
+            'bestNode': bestNode,
             'statusCode': 200
         });
     }
