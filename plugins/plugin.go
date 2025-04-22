@@ -48,6 +48,15 @@ func (p *EnergyEfficientPlugin) Name() string {
 }
 
 func (p *EnergyEfficientPlugin) Filter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeInfo *framework.NodeInfo) *framework.Status {
+	podPriority := 0
+	appType := pod.Labels["app"] // Expecting "app" or "job"
+
+	if pod.Spec.Priority != nil {
+		podPriority = int(*pod.Spec.Priority)
+	}
+	klog.Info("Filter: podPriority", podPriority)
+	klog.Info("Filter: appType", appType)
+
 	var nodeCpuTotal int64 = nodeInfo.Allocatable.MilliCPU
 	var nodeMemoryTotal int64 = nodeInfo.Allocatable.Memory
 
@@ -60,8 +69,16 @@ func (p *EnergyEfficientPlugin) Filter(ctx context.Context, state *framework.Cyc
 	nodeMemoryInUsePercentage := (float64(nodeMemoryInUse) / float64(nodeMemoryTotal)) * 100
 	nodeMemoryInUsePercentageRounded := math.Round(nodeMemoryInUsePercentage*100) / 100
 
-	if nodeCpuInUsePercentageRounded > 90 || nodeMemoryInUsePercentageRounded > 90 {
-		return framework.NewStatus(framework.Error, "Node overhead is too big")
+	if appType == "app" {
+		if nodeCpuInUsePercentageRounded > 99 || nodeMemoryInUsePercentageRounded > 99 {
+			return framework.NewStatus(framework.Error, "CPU or memory usage too high for 'app' pod")
+		}
+	} else if appType == "job" {
+		if nodeCpuInUsePercentageRounded > 95 || nodeMemoryInUsePercentageRounded > 95 {
+			return framework.NewStatus(framework.Error, "CPU or memory usage too high for 'job' pod")
+		}
+	} else {
+		return framework.NewStatus(framework.Error, "Unknown app label: must be 'app' or 'job'")
 	}
 
 	if nodeInfo.Node() == nil {
