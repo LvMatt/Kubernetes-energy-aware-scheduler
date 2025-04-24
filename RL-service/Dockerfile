@@ -5,7 +5,8 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Copy model and script into the container
-COPY dqn_kubernetes.zip .
+COPY dqn_kubernetes_cpu.zip .
+COPY dqn_kubernetes_energy.zip .
 COPY rl_scheduler_api.py .
 
 # Install required Python packages
