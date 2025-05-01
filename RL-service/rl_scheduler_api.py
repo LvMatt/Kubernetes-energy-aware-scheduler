@@ -28,11 +28,12 @@ def schedule_from_middleware(nodes: list[NodeData]):
     # Get CPU usage from each node
     print("Received nodes data:", nodes)
     cpu_usages = [node.cpu.used_percent / 100.0 for node in nodes]  # normalize to [0, 1]
-    print("cpu_usages", cpu_usages)
+    ram_usages = [node.memory.used_percent / 100.0 for node in nodes]  # normalize to [0, 1]
+    print("ram_usages", ram_usages)
     # Pad or truncate to 5 elements (model was trained on 3)
     state = np.zeros(3, dtype=np.float32)
-    for i in range(min(3, len(cpu_usages))):
-        state[i] = cpu_usages[i]
+    for i in range(min(3, len(ram_usages))):
+        state[i] = ram_usages[i]
 
     # Predict the action
     action, _ = model_cpu.predict(state)
