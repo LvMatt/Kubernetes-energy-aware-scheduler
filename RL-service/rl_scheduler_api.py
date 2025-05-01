@@ -19,9 +19,12 @@ model_energy = DQN.load(MODEL_ENERGY_PATH)
 class CPU(BaseModel):
     used_percent: float
 
+class Memory(BaseModel):
+    used_percent: float
 class NodeData(BaseModel):
     node: str
     cpu: CPU
+    memory: Memory
 
 @app.post("/schedule")
 def schedule_from_middleware(nodes: list[NodeData]):
