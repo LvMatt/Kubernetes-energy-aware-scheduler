@@ -12,7 +12,7 @@ COPY rl_scheduler_api.py .
 # Install required Python packages
 RUN pip install fastapi uvicorn numpy
 RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
-RUN pip install stable-baselines3
+RUN pip install --default-timeout=100 --retries=10 stable-baselines3
 
 # Expose the API port
 EXPOSE 8000
