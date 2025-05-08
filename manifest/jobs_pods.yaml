@@ -1,0 +1,599 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-0
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 28M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-0-container
+    resources:
+      limits:
+        cpu: 39m
+        memory: 28Mi
+      requests:
+        cpu: 39m
+        memory: 28Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-1
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 56M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-1-container
+    resources:
+      limits:
+        cpu: 60m
+        memory: 56Mi
+      requests:
+        cpu: 60m
+        memory: 56Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-2
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 42M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-2-container
+    resources:
+      limits:
+        cpu: 53m
+        memory: 42Mi
+      requests:
+        cpu: 53m
+        memory: 42Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-3
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 94M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-3-container
+    resources:
+      limits:
+        cpu: 38m
+        memory: 94Mi
+      requests:
+        cpu: 38m
+        memory: 94Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-4
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 100M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-4-container
+    resources:
+      limits:
+        cpu: 36m
+        memory: 100Mi
+      requests:
+        cpu: 36m
+        memory: 100Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-5
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 29M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-5-container
+    resources:
+      limits:
+        cpu: 79m
+        memory: 29Mi
+      requests:
+        cpu: 79m
+        memory: 29Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-6
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 36M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-6-container
+    resources:
+      limits:
+        cpu: 28m
+        memory: 36Mi
+      requests:
+        cpu: 28m
+        memory: 36Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-7
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 54M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-7-container
+    resources:
+      limits:
+        cpu: 52m
+        memory: 54Mi
+      requests:
+        cpu: 52m
+        memory: 54Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-8
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 28M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-8-container
+    resources:
+      limits:
+        cpu: 89m
+        memory: 28Mi
+      requests:
+        cpu: 89m
+        memory: 28Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-9
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 50M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-9-container
+    resources:
+      limits:
+        cpu: 96m
+        memory: 50Mi
+      requests:
+        cpu: 96m
+        memory: 50Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-10
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 78M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-10-container
+    resources:
+      limits:
+        cpu: 94m
+        memory: 78Mi
+      requests:
+        cpu: 94m
+        memory: 78Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-11
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 82M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-11-container
+    resources:
+      limits:
+        cpu: 53m
+        memory: 82Mi
+      requests:
+        cpu: 53m
+        memory: 82Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-12
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 60M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-12-container
+    resources:
+      limits:
+        cpu: 100m
+        memory: 60Mi
+      requests:
+        cpu: 100m
+        memory: 60Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-13
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 45M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-13-container
+    resources:
+      limits:
+        cpu: 25m
+        memory: 45Mi
+      requests:
+        cpu: 25m
+        memory: 45Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-14
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 68M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-14-container
+    resources:
+      limits:
+        cpu: 79m
+        memory: 68Mi
+      requests:
+        cpu: 79m
+        memory: 68Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-15
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 44M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-15-container
+    resources:
+      limits:
+        cpu: 60m
+        memory: 44Mi
+      requests:
+        cpu: 60m
+        memory: 44Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-16
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 68M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-16-container
+    resources:
+      limits:
+        cpu: 52m
+        memory: 68Mi
+      requests:
+        cpu: 52m
+        memory: 68Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-17
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 36M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-17-container
+    resources:
+      limits:
+        cpu: 38m
+        memory: 36Mi
+      requests:
+        cpu: 38m
+        memory: 36Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-18
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 37M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-18-container
+    resources:
+      limits:
+        cpu: 73m
+        memory: 37Mi
+      requests:
+        cpu: 73m
+        memory: 37Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: job
+  name: job-pod-19
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - stress-ng
+    - --vm
+    - '1'
+    - --vm-bytes
+    - 69M
+    - --vm-keep
+    - --timeout
+    - '60'
+    image: polinux/stress-ng
+    name: job-pod-19-container
+    resources:
+      limits:
+        cpu: 70m
+        memory: 69Mi
+      requests:
+        cpu: 70m
+        memory: 69Mi
+  restartPolicy: Never
+  schedulerName: energy-scheduler
